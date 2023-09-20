@@ -5,7 +5,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class RequestInfo {
-    private Map<String, String> map;
+    private Map<String, String> params;
+    private Map<String, String> queryParams;
     private String version;
     private String path;
     private String method;
@@ -14,25 +15,38 @@ public class RequestInfo {
         this.method = method;
         this.path = path;
         this.version = version;
-        this.map = new HashMap<>();
+        this.params = new HashMap<>();
+        this.queryParams = new HashMap<>();
     }
 
-    public Set<String> getKeys() {
-        return map.keySet();
+    public Set<String> getParamKeys() {
+        return params.keySet();
     }
 
-    public String getValue(String key) {
-        return map.get(key);
+    public String getParamValue(String key) {
+        return params.get(key);
     }
 
-    public void putValue(String key, String value) {
-        map.put(key, value);
+    public void putParamValue(String key, String value) {
+        params.put(key, value);
     }
 
     public int getContentLength() {
-        String val = map.get("Content Length");
+        String val = params.get("Content Length");
         if (val == null) return -1;
         return Integer.parseInt(val);
+    }
+
+    public Set<String> getQueryKeys() {
+        return queryParams.keySet();
+    }
+
+    public String getQueryValue(String key) {
+        return queryParams.get(key);
+    }
+
+    public void putQueryValue(String key, String value) {
+        queryParams.put(key, value);
     }
 
     public String getVersion() {

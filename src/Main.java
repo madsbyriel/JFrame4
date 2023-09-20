@@ -3,24 +3,66 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import classes.RequestReader;
+import classes.RequestResponder;
 import interfaces.IRequestReader;
+import interfaces.IRequestResponder;
 import interfaces.RequestInfo;
 
 public class Main {
     public static void main(String[] args) {
-        RequestInfo info = null;
         try (ServerSocket server = new ServerSocket(31415)) {
-            Socket clientSocket = server.accept();
-            IRequestReader reader = new RequestReader(clientSocket.getInputStream());
-            info = reader.readRequest();
+            while (true) {
+                Socket clientSocket = server.accept();
+                System.out.println("Accepted new connection: " + clientSocket.getInetAddress());
+                ConnectionHandler handler = new ConnectionHandler(clientSocket);
+                handler.start();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-        if (info != null) {
-            System.out.println(info.getContentLength());
-            for (String key : info.getKeys()) {
-                System.out.println(key + ": " + info.getValue(key));
+    private static class ConnectionHandler extends Thread {
+        private Socket clientSocket;
+
+        public ConnectionHandler(Socket clientSocket) {
+            this.clientSocket = clientSocket;
+        }
+
+        public void run() {
+            IRequestReader reader = null;
+
+            try {
+                reader = new RequestReader(clientSocket.getInputStream());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (reader == null) {
+                try {
+                    clientSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+
+            while (true) {
+                RequestInfo info = reader.readRequest();
+                if (info == null) {
+                    continue;
+                }
+
+                IRequestResponder responder = new RequestResponder(clientSocket); 
+                int code = responder.respondRequest(info);
+                if (code == -1) {
+                    try {
+                        clientSocket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                }
             }
         }
     }
