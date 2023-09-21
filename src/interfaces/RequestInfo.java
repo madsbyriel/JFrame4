@@ -1,5 +1,7 @@
 package interfaces;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -59,5 +61,15 @@ public class RequestInfo {
 
     public String getMethod() {
         return method;
+    }
+
+    // ----------------- DEBUG ----------------- //
+    public void printKeyValuePairsQuery() {
+        Set<String> keys = getQueryKeys();
+        if (keys.size() == 0) return;
+        System.out.println("KP's:");
+        for (String key : keys) {
+            System.out.println("\t" + key + ": " + getQueryValue(key));
+        }
     }
 }

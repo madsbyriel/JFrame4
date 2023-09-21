@@ -53,6 +53,8 @@ public class Main {
                     continue;
                 }
 
+                info.printKeyValuePairsQuery();
+
                 IRequestResponder responder = new RequestResponder(clientSocket); 
                 int code = responder.respondRequest(info);
                 if (code == -1) {
